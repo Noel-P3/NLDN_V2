@@ -1,0 +1,41 @@
+unit Db_provider;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, AdvEdit,Winapi.ShellAPI;
+
+type
+  TfrmDbProvider = class(TForm)
+    edtServidor: TAdvEdit;
+    Memo1: TMemo;
+    btnReiniciar: TButton;
+    btnSalir: TButton;
+    procedure btnSalirClick(Sender: TObject);
+    procedure btnReiniciarClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmDbProvider: TfrmDbProvider;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmDbProvider.btnReiniciarClick(Sender: TObject);
+begin
+ShellExecute(Handle, 'open','.\Ejecuta NLND.EXE',nil,nil, SW_SHOWNORMAL);
+Application.Terminate;
+end;
+
+procedure TfrmDbProvider.btnSalirClick(Sender: TObject);
+begin
+  Application.Terminate;
+end;
+
+end.

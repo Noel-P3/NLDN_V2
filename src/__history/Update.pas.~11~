@@ -1,0 +1,112 @@
+unit Update;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.StdCtrls,WinInet,ExtActns;
+
+type
+  TfrmActualiza = class(TForm)
+    lInfoDescarga: TLabel;
+    txtURL: TEdit;
+    txtLocal: TEdit;
+    bp: TProgressBar;
+    lInfoDescarga2: TLabel;
+  private
+    { Private declarations }
+
+    tiempoIncial : TDateTime;
+    procedure URL_OnDownloadProgress(Sender: TDownLoadURL;Progress, ProgressMax: Cardinal;
+    StatusCode: TURLDownloadStatus;StatusText: String; var Cancel: Boolean) ;
+
+  public
+    { Public declarations }
+
+    procedure descargarURL (const direccionURL, ficheroLocal : string);
+
+  end;
+
+var
+  frmActualiza: TfrmActualiza;
+
+implementation
+
+{$R *.dfm}
+
+function descargarFichero(const urlDescarga, ficheroLocal : String): boolean;
+const
+  BufferSize = 1024;
+var
+  hSession, hURL: HInternet;
+  Buffer: array[1..BufferSize] of Byte;
+  BufferLen: DWORD;
+  f: File;
+  sAppName: string;
+begin
+sAppName := ExtractFileName(Application.ExeName) ;
+ hSession := InternetOpen(PChar(sAppName),
+     INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0) ;
+ try
+  hURL := InternetOpenURL(hSession,
+      PChar(urlDescarga), nil, 0, 0, 0) ;
+  try
+   AssignFile(f, ficheroLocal) ;
+   Rewrite(f,1) ;
+   repeat
+    InternetReadFile(hURL, @Buffer,
+        SizeOf(Buffer), BufferLen) ;
+    BlockWrite(f, Buffer, BufferLen)
+   until BufferLen = 0;
+   CloseFile(f) ;
+   result := True;
+  finally
+   InternetCloseHandle(hURL)
+  end
+ finally
+  InternetCloseHandle(hSession)
+ end
+end;
+
+{ TfrmActualiza }
+
+procedure TfrmActualiza.descargarURL(const direccionURL, ficheroLocal: string);
+begin
+  if direccionURL and lt; and gt; '' then
+  begin
+    with TDownloadURL.Create(self) do
+    try
+      URL := direccionURL;
+      FileName := ficheroLocal;
+      OnDownloadProgress := URL_OnDownloadProgress;
+      ExecuteTarget(nil);
+    finally
+      Free;
+    end;
+  end;
+end;
+
+procedure TfrmActualiza.URL_OnDownloadProgress(Sender: TDownLoadURL; Progress,
+  ProgressMax: Cardinal; StatusCode: TURLDownloadStatus; StatusText: String;
+  var Cancel: Boolean);
+begin
+   lInfoDescarga.Caption := 'Descargando '
+       + FormatFloat('#,###', Progress / 1024) +
+       ' kb de ' + FormatFloat('#,### kb',
+       ProgressMax / 1024);
+   lInfoDescarga.Refresh;
+   try
+     lInfoDescarga2.Caption :=
+         FormatFloat('#,###.00  kbytes/segundo',
+         ((Progress / SecondSpan (now, tiempoInicial))
+         / 1024));
+   except
+     linfoDescarga2.caption := '';
+   end;
+
+   bp.Max:= ProgressMax;
+   bp.Position:= Progress;
+   application.ProcessMessages;
+end;
+
+end.

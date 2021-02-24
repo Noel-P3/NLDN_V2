@@ -1,0 +1,27 @@
+unit Actualizador;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, AdvProgressBar, IdBaseComponent,
+  IdComponent, IdTCPConnection, IdTCPClient, IdHTTP;
+
+type
+  TfrmActualizador = class(TForm)
+    IdHTTP1: TIdHTTP;
+    AdvProgressBar1: TAdvProgressBar;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmActualizador: TfrmActualizador;
+
+implementation
+
+{$R *.dfm}
+
+end.

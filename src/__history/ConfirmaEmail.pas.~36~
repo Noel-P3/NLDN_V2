@@ -1,0 +1,218 @@
+unit ConfirmaEmail;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, sLabel, Data.DB, MemDS,
+  DBAccess, Uni;
+
+type
+  TfrmConfirmaEmail = class(TForm)
+    edtUserEmail: TEdit;
+    btnEnviaOtraVez: TButton;
+    edtCodigo: TEdit;
+    btnEnviaCodigo: TButton;
+    btnSalirfrm: TButton;
+    mmoInstrucciones: TMemo;
+    sLabel1: TsLabel;
+    qUnquery2xd: TUniQuery;
+    qUnquery: TUniQuery;
+    qConfirmaEmail: TUniQuery;
+    qConfirmaEmailID_USUARIO: TIntegerField;
+    qConfirmaEmailNOMBRES: TStringField;
+    qConfirmaEmailAPELLIDOS: TStringField;
+    qConfirmaEmailEMAIL: TStringField;
+    qConfirmaEmailPASSWORD: TStringField;
+    qConfirmaEmailCODIGO: TStringField;
+    qConfirma: TUniQuery;
+    qConfirmaID_USUARIO: TIntegerField;
+    qConfirmaNOMBRES: TStringField;
+    qConfirmaAPELLIDOS: TStringField;
+    StringField1: TStringField;
+    qConfirmaPASSWORD: TStringField;
+    qConfirmaCODIGO: TStringField;
+    qUnqueryID_USUARIO: TIntegerField;
+    qUnqueryNOMBRES: TStringField;
+    qUnqueryAPELLIDOS: TStringField;
+    qUnqueryEMAIL: TStringField;
+    qUnqueryPASSWORD: TStringField;
+    qUnqueryCONFIRMADO: TStringField;
+    procedure btnEnviaOtraVezClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormShow(Sender: TObject);
+    procedure RandomMize;
+    procedure btnEnviaCodigoClick(Sender: TObject);
+  private
+    { Private declarations }
+    codigo : string;
+  public
+    { Public declarations }
+
+    usuario : string;
+    contra : string;
+    totarget : string;
+    subject : string;
+    body : string;
+
+    USER_PASSMS :string;
+    USER_IDSMS :Integer;
+
+  end;
+
+var
+  frmConfirmaEmail: TfrmConfirmaEmail;
+
+implementation
+
+uses
+  MainDesktop, MailSend;
+
+{$R *.dfm}
+
+procedure TfrmConfirmaEmail.btnEnviaCodigoClick(Sender: TObject);
+begin
+  //Si user confirma es falso pues esta validacion es igual a verdadero xd
+  if Mainform.USER_CONFIRMA = '0' then
+  BEGIN
+    //Selecciona el ultimo registro del ultimo codigo enviado
+    qConfirmaEmail.Close;
+    qConfirmaEmail.SQL.Clear;
+    qConfirmaEmail.SQL.Add('SELECT * FROM CONFIRMA_EMAIL');
+    qConfirmaEmail.SQL.Add('where ID_USUARIO = '+IntToStr(Mainform.ID_USUARIO));
+    qconfirmaEmail.Open;
+    qConfirmaEmail.Last;
+
+    //Codigo va a ser igual ultimo codigo enviado
+    codigo := qConfirmaEmailCODIGO.AsString;
+  END;
+
+  //Si codigo insertado es igual al ultimo codigo enviado pues esta condicion sera verdadera
+  if edtCodigo.Text = codigo then
+  begin
+    //Actualiza a confirmado al usuario que ha hecho este request
+    qUnquery.Close;
+    qUnquery.SQL.Clear;
+    qUnquery.SQL.Add('UPDATE USUARIOS SET CONFIRMADO = 1');
+    qUnquery.SQL.Add('WHERE ID_USUARIO = '+IntToStr(Mainform.ID_USUARIO));
+
+    qUnquery.ExecSQL;
+
+    //Actualiza variable del main
+    Mainform.USER_CONFIRMA := '1';
+
+    //Elimina todos los codigos enviados en la base de datos
+    qUnquery2xd.SQL.Clear;
+    qUnquery2xd.sql.Add('DELETE FROM CONFIRMA_EMAIL');
+    qUnquery2xd.SQL.Add('WHERE ID_USUARIO = '+IntToStr(Mainform.ID_USUARIO));
+
+    qUnquery2xd.ExecSQL;
+
+    //Mensaje de confirmacion que todo esta bien
+    Application.MessageBox('E-mail confirmado!!!', 'Application.Title', MB_OK
+      + MB_ICONINFORMATION + MB_TOPMOST);
+
+    //Manda a cerrar el formulario
+    frmConfirmaEmail.Close;
+
+  end
+  else
+  begin
+
+    //Mensaje en caso de error
+    Application.MessageBox('Este código es incorrecto' + #13#10#13#10 +
+      'Digita el ultimo código enviado', 'Application.Title', MB_OK +
+      MB_ICONSTOP + MB_TOPMOST);
+
+  end;
+end;
+
+procedure TfrmConfirmaEmail.btnEnviaOtraVezClick(Sender: TObject);
+begin
+  // Se llena las variables con el correo que se utiliza para enviar el correo xd
+  usuario := 'nlnd.nagd@gmail.com';
+  contra  := 'Rocklee0912*';
+  totarget := edtUserEmail.Text;
+  subject  := 'NLND *Recupera la contraseña*';
+
+  //Se ejecuta RandomMize
+  RandomMize;
+
+  //Selecciona usuarios donde el email insertado
+  qUnquery.Close;
+  qUnquery.SQL.Clear;
+  qUnquery.SQL.Add('SELECT * FROM USUARIOS');
+  qUnquery.SQL.Add('WHERE EMAIL = '+QuotedStr(edtUserEmail.Text));
+  qUnquery.Open;
+
+  //Si el email insertado existe entonces esta validacion es verdadera
+  if not qUnqueryEMAIL.IsNull then
+  begin
+     //Inserta el codigo nuevo a enviar
+     qConfirma.Close;
+     qConfirma.Open;
+     qConfirma.Insert;
+     qConfirmaID_USUARIO.AsInteger := MainForm.ID_USUARIO;
+     qConfirmaNOMBRES.AsString := MainForm.USUARIO_NOMBRE;
+     qConfirmaAPELLIDOS.AsString := MainForm.USUARIO_APELLIDO;
+     qConfirma.FieldByName('EMAIL').AsString := Mainform.USER_EMAIL;
+     qConfirmaPASSWORD.AsString := MainForm.USER_PASS;
+     qConfirmaCODIGO.AsString := codigo;
+     qConfirma.Post;
+
+     //Trata de enviar el correo con las variables llenadas
+     try
+     begin
+     Envio_Correo.Gmail(usuario,contra,totarget,subject,body);
+     end;
+
+     except
+     //Ojala esto funcione
+     end;
+
+     //Mensaje de confirmacion
+     Application.MessageBox('Correo Enviado correctamente!!',
+       'Application.Title', MB_OK + MB_ICONINFORMATION + MB_TOPMOST);
+  end
+  else
+  begin
+    //Mensaje en caso de error
+    Application.MessageBox('Usuario no existe!!', 'Application.Title', MB_OK +
+      MB_ICONSTOP + MB_TOPMOST);
+  end;
+end;
+
+procedure TfrmConfirmaEmail.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  //Si el usuario confirma es igual a verdadero entonces esta validacion es verdadera
+  if MainForm.USER_CONFIRMA = '1' then
+  begin
+    //Se ejecuta disables en el Mainform
+    MainForm.Disabled;
+  end;
+  //Libera de la memoria este formulario al cerrar
+  Action := caFree;
+end;
+
+procedure TfrmConfirmaEmail.FormShow(Sender: TObject);
+begin
+  //Al abrir formulario el editable email va a ser igual al email del usuario logueado
+  edtUserEmail.Text := MainForm.USER_EMAIL;
+end;
+
+procedure TfrmConfirmaEmail.RandomMize;
+var
+  i: Integer;
+begin
+  Randomize;
+  //Se obtiene el codigo random entre un margen de 10000 a 1 o eso creo xd
+  for i := 1 to 1 do
+    body := ( IntToStr( Random( 10000 ) + 1 ) );
+
+    codigo := body;
+    // El contenido del correo a enviar
+    body := '<html>'+'<body><h2>Hola este es tu codigo</h2></body>'+'<p><b><h3>Codigo.: '+codigo+'</h3></b></p>'+'</html>';
+end;
+
+end.

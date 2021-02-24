@@ -1,0 +1,255 @@
+object frmConfirmaEmail: TfrmConfirmaEmail
+  Left = 0
+  Top = 0
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
+  Caption = 'NLND-Confirma E-mail'
+  ClientHeight = 340
+  ClientWidth = 487
+  Color = clBtnFace
+  DefaultMonitor = dmMainForm
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  Position = poMainFormCenter
+  Visible = True
+  OnClose = FormClose
+  OnShow = FormShow
+  PixelsPerInch = 96
+  TextHeight = 13
+  object sLabel1: TsLabel
+    Left = 8
+    Top = 8
+    Width = 137
+    Height = 23
+    Caption = 'Confirma E-mail'
+    ParentFont = False
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -19
+    Font.Name = 'Tahoma'
+    Font.Style = []
+  end
+  object edtUserEmail: TEdit
+    Left = 8
+    Top = 69
+    Width = 241
+    Height = 27
+    TabStop = False
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    ReadOnly = True
+    TabOrder = 0
+    TextHint = 'E-MAIL'
+  end
+  object btnCodigo: TButton
+    Left = 8
+    Top = 102
+    Width = 161
+    Height = 40
+    Caption = 'ENVIA EL CODIGO OTRA VEZ'
+    Enabled = False
+    TabOrder = 1
+    OnClick = btnCodigoClick
+  end
+  object edtCodigo: TEdit
+    Left = 8
+    Top = 185
+    Width = 161
+    Height = 27
+    TabStop = False
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 2
+    TextHint = 'CODIGO'
+    Visible = False
+  end
+  object btnEnviaCodigo: TButton
+    Left = 8
+    Top = 218
+    Width = 161
+    Height = 44
+    Caption = 'ENVIAR CODIGO'
+    TabOrder = 3
+    TabStop = False
+    Visible = False
+    OnClick = btnEnviaCodigoClick
+  end
+  object btnSalirfrm: TButton
+    Left = 8
+    Top = 292
+    Width = 161
+    Height = 40
+    Caption = 'SALIR'
+    TabOrder = 4
+  end
+  object mmoInstrucciones: TMemo
+    Left = 255
+    Top = 8
+    Width = 229
+    Height = 324
+    TabStop = False
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    Lines.Strings = (
+      'Notas:'
+      ''
+      '1- El e-mail representado aqui es '
+      'el cual te logueas.'
+      ''
+      '2- Si por alguna razon este correo '
+      'no existe el codigo nunca te va a '
+      'llegar por lo cual no podras '
+      'confirmar tu E-mail.'
+      ''
+      '3- El codigo que llegara en un '
+      'correo cual tendras que insertar '
+      'en el apartado de codigo y luego '
+      'presionar enviar codigo'
+      ''
+      'Nota.: Si no ves el apartado es'
+      'porque se habilitara luego de '
+      'enviar el correo'
+      ''
+      '4- Si todo va bien el E-mail sera '
+      'confirmado'
+      ''
+      'Nota.: Te preguntaras porque '
+      'confirmar tu correo y es que por '
+      'alguna razon'
+      'si olvidas tu contrase'#241'a, podrias '
+      'recuperarlo con el correo con el '
+      'cual te logueas')
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssVertical
+    TabOrder = 5
+  end
+  object qUnquery2xd: TUniQuery
+    Connection = DM.DBNLND
+    Left = 355
+    Top = 153
+  end
+  object qUnquery: TUniQuery
+    Connection = DM.DBNLND
+    SQL.Strings = (
+      'SELECT * FROM USUARIOS')
+    Left = 267
+    Top = 145
+    object qUnqueryID_USUARIO: TIntegerField
+      FieldName = 'ID_USUARIO'
+      ReadOnly = True
+      Required = True
+    end
+    object qUnqueryNOMBRES: TStringField
+      FieldName = 'NOMBRES'
+      Required = True
+      Size = 250
+    end
+    object qUnqueryAPELLIDOS: TStringField
+      FieldName = 'APELLIDOS'
+      Required = True
+      Size = 250
+    end
+    object qUnqueryEMAIL: TStringField
+      FieldName = 'EMAIL'
+      Required = True
+      Size = 250
+    end
+    object qUnqueryPASSWORD: TStringField
+      FieldName = 'PASSWORD'
+      Required = True
+      Size = 250
+    end
+    object qUnqueryCONFIRMADO: TStringField
+      FieldName = 'CONFIRMADO'
+      Size = 250
+    end
+  end
+  object qConfirmaEmail: TUniQuery
+    Connection = DM.DBNLND
+    SQL.Strings = (
+      'SELECT * FROM CONFIRMA_EMAIL')
+    Left = 267
+    Top = 81
+    object qConfirmaEmailID_USUARIO: TIntegerField
+      FieldName = 'ID_USUARIO'
+      Required = True
+    end
+    object qConfirmaEmailNOMBRES: TStringField
+      FieldName = 'NOMBRES'
+      Required = True
+      Size = 250
+    end
+    object qConfirmaEmailAPELLIDOS: TStringField
+      FieldName = 'APELLIDOS'
+      Required = True
+      Size = 250
+    end
+    object qConfirmaEmailEMAIL: TStringField
+      FieldName = 'EMAIL'
+      Required = True
+      Size = 250
+    end
+    object qConfirmaEmailPASSWORD: TStringField
+      FieldName = 'PASSWORD'
+      Required = True
+      Size = 250
+    end
+    object qConfirmaEmailCODIGO: TStringField
+      FieldName = 'CODIGO'
+      Required = True
+      Size = 100
+    end
+  end
+  object qConfirma: TUniQuery
+    Connection = DM.DBNLND
+    SQL.Strings = (
+      'SELECT * FROM CONFIRMA_EMAIL')
+    Left = 340
+    Top = 80
+    object qConfirmaID_USUARIO: TIntegerField
+      FieldName = 'ID_USUARIO'
+      Required = True
+    end
+    object qConfirmaNOMBRES: TStringField
+      FieldName = 'NOMBRES'
+      Required = True
+      Size = 250
+    end
+    object qConfirmaAPELLIDOS: TStringField
+      FieldName = 'APELLIDOS'
+      Required = True
+      Size = 250
+    end
+    object StringField1: TStringField
+      FieldName = 'EMAIL'
+      Required = True
+      Size = 250
+    end
+    object qConfirmaPASSWORD: TStringField
+      FieldName = 'PASSWORD'
+      Required = True
+      Size = 250
+    end
+    object qConfirmaCODIGO: TStringField
+      FieldName = 'CODIGO'
+      Required = True
+      Size = 100
+    end
+  end
+end

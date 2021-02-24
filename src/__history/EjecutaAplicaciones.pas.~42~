@@ -1,0 +1,191 @@
+unit EjecutaAplicaciones;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, MemDS, DBAccess, Uni,
+  Vcl.Grids, Vcl.DBGrids, CRGrid, Vcl.ComCtrls, Vcl.StdCtrls, Vcl.Buttons,
+  Vcl.DBCtrls, Vcl.ExtCtrls, sDialogs,Winapi.ShellAPI;
+
+type
+  TfrmExecApp = class(TForm)
+    pnlTop: TPanel;
+    dbnvgr1: TDBNavigator;
+    btnEdit: TSpeedButton;
+    btnEliminar: TSpeedButton;
+    btnSalir: TButton;
+    pnlRight: TPanel;
+    statUser: TStatusBar;
+    pnlCenter: TPanel;
+    grdExecApp: TCRDBGrid;
+    qExecApp: TUniQuery;
+    dsExecApp: TDataSource;
+    qExecAppID: TIntegerField;
+    qExecAppID_USUARIO: TIntegerField;
+    qExecAppNOMBRE_APP: TStringField;
+    qExecAppRUTA: TStringField;
+    qExecAppICONO: TStringField;
+    tmrtimer: TTimer;
+    OpenDialog1: TOpenDialog;
+    btnExecApp: TButton;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure tmrtimerTimer(Sender: TObject);
+    procedure btnSalirClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure btnEliminarClick(Sender: TObject);
+    procedure qExecAppAfterCancel(DataSet: TDataSet);
+    procedure qExecAppAfterEdit(DataSet: TDataSet);
+    procedure qExecAppAfterInsert(DataSet: TDataSet);
+    procedure qExecAppAfterPost(DataSet: TDataSet);
+    procedure qExecAppBeforePost(DataSet: TDataSet);
+    procedure btnExecAppClick(Sender: TObject);
+    procedure grdExecAppCellClick(Column: TColumn);
+    procedure btnEditClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+
+    ruta : string
+  end;
+
+var
+  frmExecApp: TfrmExecApp;
+
+implementation
+
+uses
+  DataModule, MainDesktop;
+
+{$R *.dfm}
+
+procedure TfrmExecApp.btnEditClick(Sender: TObject);
+begin
+  qExecApp.Edit;
+end;
+
+procedure TfrmExecApp.btnEliminarClick(Sender: TObject);
+begin
+    //Para poder eliminar un registro y este pregunta antes de hacerlo
+
+    case Application.MessageBox('¿Estas seguro de querer eliminar este registro?',
+      'Application.Title', MB_YESNO + MB_ICONQUESTION + MB_TOPMOST) of
+      IDYES:
+        begin
+          qExecApp.Delete;
+        end;
+      IDNO:
+        begin
+
+        end;
+    end;
+end;
+
+procedure TfrmExecApp.btnExecAppClick(Sender: TObject);
+var st:array[0..255] of Char;
+begin
+  ShellExecute(Handle,'open',StrPCopy(St,ruta),nil,nil,SW_SHOW);
+end;
+
+procedure TfrmExecApp.btnSalirClick(Sender: TObject);
+begin
+  frmExecApp.Close;
+end;
+
+procedure TfrmExecApp.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Mainform.OnShow := nil;
+  Mainform.Visible := true;
+  Action := cafree;
+end;
+
+procedure TfrmExecApp.FormCreate(Sender: TObject);
+begin
+  MainForm.Visible := false;
+
+   // Muestra en un panelBar la fecha y la hora exacta del presente ejecutado la aplicación
+  statUser.Panels[1].text := datetostr(date);
+  statUser.Panels[2].text := timetostr(time);
+  statUser.Panels[0].Text := 'Usuario: '+(MainForm.USUARIO_NOMBRE) +' '+(MainForm.USUARIO_APELLIDO);
+  statUser.Panels[3].Text := 'Ver.:'+(DM.Version_Exe);
+end;
+
+procedure TfrmExecApp.FormShow(Sender: TObject);
+begin
+  qExecApp.Close;
+  qExecApp.SQL.Clear;
+  qExecApp.SQL.Add('SELECT * FROM EJECUTA_APLICACIONES');
+  qExecApp.SQL.Add('WHERE ID_USUARIO = '+IntToStr(MainForm.ID_USUARIO));
+  qExecApp.SQL.Add('ORDER BY NOMBRE_APP');
+  qExecApp.Open;
+end;
+
+procedure TfrmExecApp.grdExecAppCellClick(Column: TColumn);
+begin
+  ruta := qExecAppRUTA.AsString;
+  btnExecApp.Caption := 'Ejecutar'+' '+qExecAppNOMBRE_APP.AsString;
+end;
+
+procedure TfrmExecApp.qExecAppAfterCancel(DataSet: TDataSet);
+begin
+btnEdit.Enabled:= True;
+btnEdit.Visible:= True;
+btnEliminar.Enabled:= True;
+btnEliminar.Visible:= True;
+end;
+
+procedure TfrmExecApp.qExecAppAfterEdit(DataSet: TDataSet);
+begin
+//Despues de editar cualquier registro el boton eliminar se deshabilita y no se podra ver
+btnEliminar.Enabled:=False;
+btnEliminar.Visible:=False;
+end;
+
+procedure TfrmExecApp.qExecAppAfterInsert(DataSet: TDataSet);
+begin
+ //Despues de querer insertar un nuevo registro los botones edit y eliminar se deshabilitan y
+  //no se podran ver
+
+  btnEdit.Enabled:= False;
+  btnEdit.Visible:= False;
+  btnEliminar.Enabled:= False;
+  btnEliminar.Visible:= False;
+
+  if OpenDialog1.Execute then
+  begin
+    qExecAppRUTA.AsString := OpenDialog1.FileName;
+  end;
+
+end;
+
+procedure TfrmExecApp.qExecAppAfterPost(DataSet: TDataSet);
+begin
+//Despues de terminar de hacer un nuevo registro los botones edit y eliminar se habilitan y se
+//podran ver
+btnEdit.Enabled:= True;
+btnEdit.Visible:= True;
+btnEliminar.Enabled:= True;
+btnEliminar.Visible:= True;
+end;
+
+procedure TfrmExecApp.qExecAppBeforePost(DataSet: TDataSet);
+begin
+ //Antes de insertar un nuevo registro aqui se le indica al data set el id del usuario
+  qExecAppID_USUARIO.AsInteger := MainForm.ID_USUARIO;
+end;
+
+procedure TfrmExecApp.tmrtimerTimer(Sender: TObject);
+var
+  DateTime : TDateTime;
+  str : string;
+begin
+  // En un ciclo sin fin este indicara la hora exacta por segundos y el dia
+  DateTime := Time;
+  str := TimeToStr(DateTime);
+  statUser.Panels[2].text := str;
+  statUser.Panels[1].text := datetostr(date);
+end;
+
+end.

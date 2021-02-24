@@ -1,0 +1,31 @@
+unit Update;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.StdCtrls;
+
+type
+  TfrmActualiza = class(TForm)
+    lInfoDescarga: TLabel;
+    txtURL: TEdit;
+    txtLocal: TEdit;
+    bp: TProgressBar;
+  private
+    { Private declarations }
+
+    tiempoIncial : TDateTime;
+
+  public
+    { Public declarations }
+  end;
+
+var
+  frmActualiza: TfrmActualiza;
+
+implementation
+
+{$R *.dfm}
+
+end.

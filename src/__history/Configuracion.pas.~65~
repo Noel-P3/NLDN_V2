@@ -1,0 +1,163 @@
+unit Configuracion;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Data.DB,
+  MemDS, DBAccess, Uni;
+
+type
+  TfrmConfiguracion = class(TForm)
+    pnlConfigDB: TPanel;
+    edtChangePass1: TEdit;
+    edtChangePass2: TEdit;
+    BtnUpdatePass: TButton;
+    lblTitulo1: TLabel;
+    qUnquery: TUniQuery;
+    btnSalir: TButton;
+    procedure FormShow(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure BtnUpdatePassClick(Sender: TObject);
+    procedure btnSalirClick(Sender: TObject);
+    procedure edtChangePass2Change(Sender: TObject);
+    procedure edtChangePass2KeyPress(Sender: TObject; var Key: Char);
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+
+    HolaMailSend :Integer;
+  end;
+
+var
+  frmConfiguracion: TfrmConfiguracion;
+
+implementation
+
+uses
+  DataModule, SesionInicio, MainDesktop, MailSend;
+
+{$R *.dfm}
+
+procedure TfrmConfiguracion.btnSalirClick(Sender: TObject);
+begin
+  frmConfiguracion.Close;
+end;
+
+procedure TfrmConfiguracion.BtnUpdatePassClick(Sender: TObject);
+begin
+  case Application.MessageBox('¿ Seguro desea actualizar la contraseña?',
+    'Application.Title', MB_YESNO + MB_ICONINFORMATION + MB_TOPMOST) of
+    IDYES:
+      begin
+       if edtChangePass2.Text = edtChangePass1.Text then
+       begin
+        if MainForm.UNO = 1 then
+        begin
+            if edtChangePass1.Text <> MainForm.USER_PASS then
+          begin
+             qUnquery.SQL.Add('UPDATE USUARIOS SET PASSWORD = '+QuotedStr(edtChangePass2.Text));
+             qUnquery.SQL.Add('WHERE ID_USUARIO = '+IntToStr(MainForm.ID_USUARIO));
+
+             qUnquery.ExecSQL;
+
+             Application.MessageBox('Contraseña actualizada correctamente!!!',
+               'Application.Title', MB_OK + MB_ICONINFORMATION + MB_TOPMOST);
+
+               edtChangePass1.Text := '';
+               edtChangePass2.Text := '';
+          end
+          else
+          begin
+             Application.MessageBox('La contraseña a cambiar no puede ser igual a la actual',
+                'Application.Title', MB_OK + MB_ICONWARNING + MB_TOPMOST);
+
+           edtChangePass1.Text := '';
+           edtChangePass2.Text := '';
+          end;
+        end;
+
+        if HolaMailSend = 1 then
+        begin
+            if Envio_Correo.USER_PASSMS <> '' then
+          begin
+            if edtChangePass1.Text <> Envio_Correo.USER_PASSMS then
+            begin
+             qUnquery.SQL.Add('UPDATE USUARIOS SET PASSWORD = '+QuotedStr(edtChangePass2.Text));
+             qUnquery.SQL.Add('WHERE ID_USUARIO = '+IntToStr(Envio_Correo.USER_IDSMS));
+
+             qUnquery.ExecSQL;
+
+             Application.MessageBox('Contraseña actualizada correctamente!!!',
+             'Application.Title', MB_OK + MB_ICONINFORMATION + MB_TOPMOST);
+
+             edtChangePass1.Text := '';
+             edtChangePass2.Text := '';
+            end
+            else
+            begin
+             Application.MessageBox('La contraseña a cambiar no puede ser igual a la actual',
+             'Application.Title', MB_OK + MB_ICONWARNING + MB_TOPMOST);
+
+             edtChangePass1.Text := '';
+             edtChangePass2.Text := '';
+            end;
+          end;
+        end;
+       end
+       else
+        begin
+         Application.MessageBox('La contraseña deben de ser iguales para poder actualizar',
+           'Application.Title', MB_OK + MB_ICONINFORMATION + MB_TOPMOST);
+
+           edtChangePass2.Text := '';
+        end;
+      end;
+    IDNO:
+      begin
+        //Tato xd
+      end;
+  end;
+end;
+
+procedure TfrmConfiguracion.edtChangePass2Change(Sender: TObject);
+begin
+   if edtChangePass1.Text <> '' then
+  begin
+    if edtChangePass2.Text <> '' then
+    BtnUpdatePass.Enabled := True;
+  end
+  else
+    BtnUpdatePass.Enabled := False;
+end;
+
+procedure TfrmConfiguracion.edtChangePass2KeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if key = #13 then BtnUpdatePassClick(BtnUpdatePass)
+end;
+
+procedure TfrmConfiguracion.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+ Action := caFree;
+end;
+
+procedure TfrmConfiguracion.FormCreate(Sender: TObject);
+begin
+  HolaMailSend := 0;
+end;
+
+procedure TfrmConfiguracion.FormShow(Sender: TObject);
+begin
+  if HolaMailSend = 1 then
+  begin
+    Envio_Correo.Hide;
+  end;
+  edtChangePass1.Height := 38;
+  edtChangePass2.Height := 38;
+end;
+
+end.

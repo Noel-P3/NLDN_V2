@@ -1,0 +1,31 @@
+unit Cuentas;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
+
+type
+  TfrmCuentas = class(TForm)
+    btnSalir: TButton;
+    procedure btnSalirClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmCuentas: TfrmCuentas;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmCuentas.btnSalirClick(Sender: TObject);
+begin
+Application.Terminate;
+end;
+
+end.

@@ -1,0 +1,71 @@
+unit Actualizador;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, AdvProgressBar, IdBaseComponent,
+  IdComponent, IdTCPConnection, IdTCPClient, IdHTTP;
+
+type
+  TfrmActualizador = class(TForm)
+    IdHTTP1: TIdHTTP;
+    ProgressBar: TAdvProgressBar;
+    procedure FormShow(Sender: TObject);
+    procedure Download;
+    procedure IdHTTP1WorkBegin(ASender: TObject; AWorkMode: TWorkMode;
+      AWorkCountMax: Int64);
+    procedure IdHTTP1Work(ASender: TObject; AWorkMode: TWorkMode;
+      AWorkCount: Int64);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmActualizador: TfrmActualizador;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmActualizador.Download;
+var
+  IdHTTP1: TIdHTTP;
+  Stream: TMemoryStream;
+  Url, FileName: String;
+begin
+  Url := 'http://download1594.mediafire.com/48vnk6cgwvbg/97pzqqer5klq4ki/NLND.UO.exe';
+  Filename := 'NLND.UO.exe';
+
+  IdHTTP1 := TIdHTTP.Create(Self);
+  Stream := TMemoryStream.Create;
+  try
+    IdHTTP1.Get(Url, Stream);
+    Stream.SaveToFile(FileName);
+  finally
+    Stream.Free;
+    IdHTTP1.Free;
+  end;
+end;
+
+procedure TfrmActualizador.FormShow(Sender: TObject);
+begin
+Download;
+end;
+
+procedure TfrmActualizador.IdHTTP1Work(ASender: TObject; AWorkMode: TWorkMode;
+  AWorkCount: Int64);
+begin
+  ProgressBar.Position := AWorkCount;
+end;
+
+procedure TfrmActualizador.IdHTTP1WorkBegin(ASender: TObject;
+  AWorkMode: TWorkMode; AWorkCountMax: Int64);
+begin
+  ProgressBar.Max := AWorkCountMax;
+  ProgressBar.Position := 0;
+end;
+
+end.

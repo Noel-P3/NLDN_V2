@@ -1,0 +1,100 @@
+object frmConfiguracion: TfrmConfiguracion
+  Left = 0
+  Top = 0
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
+  Caption = 'NLND-Configuraci'#243'n'
+  ClientHeight = 261
+  ClientWidth = 264
+  Color = clBtnFace
+  DefaultMonitor = dmMainForm
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  FormStyle = fsMDIForm
+  OldCreateOrder = False
+  Position = poDesktopCenter
+  Visible = True
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnShow = FormShow
+  PixelsPerInch = 96
+  TextHeight = 13
+  object pnlConfigDB: TPanel
+    Left = 0
+    Top = 0
+    Width = 265
+    Height = 281
+    Align = alCustom
+    TabOrder = 0
+    object lblTitulo1: TLabel
+      Left = 39
+      Top = 30
+      Width = 190
+      Height = 18
+      Caption = 'Change the password'
+      Font.Charset = OEM_CHARSET
+      Font.Color = clBlue
+      Font.Height = -19
+      Font.Name = 'Terminal'
+      Font.Style = []
+      ParentFont = False
+    end
+    object edtChangePass1: TEdit
+      Left = 39
+      Top = 68
+      Width = 190
+      Height = 30
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      PasswordChar = '*'
+      TabOrder = 0
+    end
+    object edtChangePass2: TEdit
+      Left = 39
+      Top = 104
+      Width = 190
+      Height = 30
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      PasswordChar = '*'
+      TabOrder = 1
+      OnChange = edtChangePass2Change
+      OnKeyPress = edtChangePass2KeyPress
+    end
+    object BtnUpdatePass: TButton
+      Left = 39
+      Top = 140
+      Width = 190
+      Height = 41
+      Caption = 'Actualiza'
+      Enabled = False
+      TabOrder = 2
+      OnClick = BtnUpdatePassClick
+    end
+    object btnSalir: TButton
+      Left = 39
+      Top = 187
+      Width = 190
+      Height = 41
+      Caption = 'Salir de configuraci'#243'n'
+      TabOrder = 3
+      OnClick = btnSalirClick
+    end
+  end
+  object qUnquery: TUniQuery
+    Connection = DM.DBNLND
+    Left = 184
+    Top = 8
+  end
+end

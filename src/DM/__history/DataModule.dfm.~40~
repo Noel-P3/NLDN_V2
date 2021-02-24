@@ -1,0 +1,57 @@
+object DM: TDM
+  OldCreateOrder = True
+  OnCreate = DataModuleCreate
+  Height = 422
+  Width = 750
+  object DBNLND: TUniConnection
+    ProviderName = 'sQL Server'
+    Port = 1433
+    Database = 'NLND'
+    SpecificOptions.Strings = (
+      'sQL Server.ApplicationName=NLND')
+    Username = 'pls'
+    Server = 'NOELPCCLICKTECK'
+    Connected = True
+    AfterConnect = DBNLNDAfterConnect
+    BeforeConnect = DBNLNDBeforeConnect
+    Left = 480
+    Top = 144
+    EncryptedPassword = 'CEFFCDFFCCFF'
+  end
+  object SQLServerUniProvider1: TSQLServerUniProvider
+    Left = 480
+    Top = 208
+  end
+  object XMLNLND: TXMLDocument
+    FileName = 'DBProvider.xml'
+    Left = 560
+    Top = 144
+  end
+  object qRecordar_usuario: TUniQuery
+    Connection = DBNLND
+    SQL.Strings = (
+      'SELECT * FROM Recordar_usuarios where id = 1')
+    Left = 316
+    Top = 96
+    object qRecordar_usuarioID: TIntegerField
+      FieldName = 'ID'
+      Required = True
+    end
+    object qRecordar_usuarioRecordar_usuario: TIntegerField
+      FieldName = 'Recordar_usuario'
+      Required = True
+    end
+    object qRecordar_usuarioVersion1: TStringField
+      FieldName = 'Version1'
+      Size = 9
+    end
+    object qRecordar_usuarioVersion2: TStringField
+      FieldName = 'Version2'
+      Size = 100
+    end
+    object qRecordar_usuarioVersion3: TStringField
+      FieldName = 'Version3'
+      Size = 100
+    end
+  end
+end

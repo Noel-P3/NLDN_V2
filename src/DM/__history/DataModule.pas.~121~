@@ -1,0 +1,93 @@
+unit DataModule;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, UniProvider, SQLServerUniProvider, Data.DB,
+  DBAccess, Uni, Xml.xmldom, Xml.XMLIntf, Xml.XMLDoc, MemDS,Winapi.ShellAPI,Winapi.Messages,Vcl.Forms,
+  Vcl.Dialogs,Vcl.Controls,Vcl.Graphics,Winapi.Windows,System.UITypes;
+
+type
+  TDM = class(TDataModule)
+    DBNLND: TUniConnection;
+    SQLServerUniProvider1: TSQLServerUniProvider;
+    XMLNLND: TXMLDocument;
+    qBD: TUniQuery;
+    qBDCONECTADO: TIntegerField;
+    qBDVERSION_1: TStringField;
+    qBDVERSION_2: TStringField;
+    qBDVERSION_3: TStringField;
+    procedure DataModuleCreate(Sender: TObject);
+    procedure DBNLNDAfterConnect(Sender: TObject);
+    procedure DBNLNDBeforeConnect(Sender: TObject);
+    procedure DBNLNDError(Sender: TObject; E: EDAError; var Fail: Boolean);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    Estado : integer;
+    Recordar_Usuario : string;
+    Version_Exe : string;
+    Version_BD  :string;
+    Version_Local :string;
+    OnMinimize : string;
+  end;
+
+var
+  DM: TDM;
+
+implementation
+
+uses
+  Db_provider;
+
+{%CLASSGROUP 'Vcl.Controls.TControl'}
+
+{$R *.dfm}
+
+procedure TDM.DataModuleCreate(Sender: TObject);
+begin
+     DBNLND.Connect;
+
+     Version_BD    := qBDVERSION_1.AsString+'.'+qBDVERSION_2.AsString+'.'+qBDVERSION_3.AsString;
+     Version_Exe   := XMLNLND.ChildNodes.FindNode('body').ChildNodes.Nodes['ver'].Text;
+     Version_Local := '1.3.3';
+end;
+
+procedure TDM.DBNLNDAfterConnect(Sender: TObject);
+begin
+  qBD.Close;
+  qBD.Open;
+
+  Estado := qBDCONECTADO.AsInteger;
+end;
+
+procedure TDM.DBNLNDBeforeConnect(Sender: TObject);
+begin
+   XMLNLND.Active := True;
+
+   try
+    DBNLND.Connected := False;
+    DBNLND.Server    := XMLNLND.ChildNodes.FindNode('body').ChildNodes.Nodes['DBPro'].Text;
+    Recordar_Usuario := XMLNLND.ChildNodes.FindNode('body').ChildNodes.Nodes['RCUP'].Text;
+    OnMinimize       := XMLNLND.ChildNodes.FindNode('body').ChildNodes.Nodes['OMNM'].Text;
+    except
+
+    end;
+end;
+
+procedure TDM.DBNLNDError(Sender: TObject; E: EDAError; var Fail: Boolean);
+begin
+    if DBNLND.Connected = false then
+    begin
+
+      MessageDlg('NLND falló al conectarse a la base de ' + #13#10 +
+        'datos...' + #13#10#13#10 + 'Pruebe a reiniciar la aplicación...',
+        mtError, [mbOK], 0);
+
+      Application.CreateForm(TfrmDbProvider,frmDbProvider);
+      frmDbProvider.ShowModal;
+    end;
+end;
+
+end.
